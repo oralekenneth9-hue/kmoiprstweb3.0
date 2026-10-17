@@ -137,9 +137,12 @@
     font-size: 11.5px;
     line-height: 1.5;
     color: var(--code-text);
-    white-space: pre-wrap;
-    word-break: break-word;
-    overflow-x: auto;
+    white-space: pre;
+    max-height: 190px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    tab-size: 2;
   }
 
   /* Tutorial link card */
