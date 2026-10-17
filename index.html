@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#080808">
+  <title>KMOIPRST | KEYFLOW</title>
+  <style>
+    :root {
+      --bg: #080808;
+      --text: #f7f7f7;
+      --muted: #c9c9c9;
+      --green: #12df08;
+      --green-shadow: #087b05;
+      --red: #ff0808;
+      --red-shadow: #970000;
+      --cyan: #00e9e9;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .page {
+      position: relative;
+      width: min(100%, calc(100vh * 9 / 16), 900px);
+      min-height: min(100vh, calc(100vw * 16 / 9));
+      margin: 0 auto;
+      padding: 270px 5% 46px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    /* Keep the overall design in a 9:16 portrait frame on wider screens. */
+    @media (min-aspect-ratio: 9/16) {
+      body { background: #000; }
+      .page {
+        width: min(100vw, calc(100vh * 9 / 16));
+        min-height: 100vh;
+      }
+    }
+
+    .cherry-bg {
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 280px;
+      object-fit: cover;
+      object-position: center 43%;
+      opacity: .9;
+      pointer-events: none;
+      -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+    }
+
+    .profile-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 22px;
+      margin-bottom: 20px;
+    }
+
+    .name {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(23px, 5.1vw, 43px);
+      line-height: 1.2;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .profile-link {
+      position: relative;
+      overflow: hidden;
+      flex: 0 0 auto;
+      display: block;
+      width: clamp(110px, 29vw, 220px);
+      border-radius: 50%;
+      transition: transform .15s ease, filter .15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .profile-link:hover { filter: brightness(1.1); }
+    .profile-link:active { transform: scale(.97); }
+    .profile-link:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+
+    .profile {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1;
+      border: 5px solid var(--cyan);
+      border-radius: 50%;
+      object-fit: cover;
+      background: #171717;
+      box-shadow: 0 0 18px #00e9e933;
+    }
+
+    .brand-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(130px, .48fr);
+      gap: 28px;
+      align-items: center;
+      margin: 22px 0 26px;
+    }
+
+    .button {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      text-decoration: none;
+      color: white;
+      border: 0;
+      border-radius: 22px;
+      font-weight: 900;
+      line-height: 1.1;
+      cursor: pointer;
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .button:active { transform: translateY(5px); }
+    .button:hover { filter: brightness(1.08); }
+    .button:focus-visible { outline: 3px solid var(--cyan); outline-offset: 4px; }
+
+    /* Click animation: a quick squish, plus a ripple from the click point */
+    .is-pressed { animation: press .32s ease; }
+
+    @keyframes press {
+      0%   { transform: translateY(0) scale(1); }
+      35%  { transform: translateY(5px) scale(.96); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
+    .ripple {
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      margin: -12px 0 0 -12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, .55);
+      transform: scale(0);
+      opacity: 1;
+      pointer-events: none;
+      animation: ripple .6s ease-out forwards;
+    }
+
+    @keyframes ripple {
+      to { transform: scale(18); opacity: 0; }
+    }
+
+    .brand-button {
+      min-height: 145px;
+      padding: 22px 12px;
+      background: var(--green);
+      box-shadow: 0 13px 0 var(--green-shadow);
+      font-size: clamp(30px, 7.8vw, 68px);
+      letter-spacing: -1.5px;
+    }
+
+    .follow-button {
+      min-height: 80px;
+      padding: 18px 12px;
+      background: var(--red);
+      box-shadow: 0 11px 0 var(--red-shadow);
+      font-size: clamp(22px, 4.8vw, 38px);
+    }
+
+    .intro { margin-top: 35px; }
+
+    .intro h2 {
+      margin: 0 0 8px;
+      font-size: clamp(27px, 4.8vw, 42px);
+      font-weight: 900;
+      letter-spacing: -.7px;
+    }
+
+    .intro p {
+      margin: 0 0 30px;
+      color: var(--muted);
+      font-size: clamp(17px, 2.9vw, 25px);
+      line-height: 1.34;
+      font-weight: 300;
+    }
+
+    .page-actions {
+      display: grid;
+      gap: 30px;
+      margin: 40px -1.5% 0;
+    }
+
+    .action-button {
+      width: 100%;
+      min-height: 120px;
+      padding: 24px 15px;
+      font-size: clamp(23px, 4.5vw, 38px);
+      box-shadow: 0 17px 0 var(--green-shadow);
+      font-family: inherit;
+    }
+
+    .enter-button { background: #08bd00; }
+    .exit-button {
+      background: var(--red);
+      box-shadow: 0 17px 0 var(--red-shadow);
+    }
+
+    .footer {
+      margin-top: 40px;
+      text-align: center;
+      color: #888;
+      font-size: 13px;
+    }
+
+    @media (max-width: 520px) {
+      .page { width: 100%; min-height: 100vh; padding-top: 215px; }
+      .cherry-bg { height: 235px; }
+      .profile-row { gap: 12px; }
+      .profile-link { width: 31vw; }
+      .profile { border-width: 4px; }
+      .brand-row { grid-template-columns: minmax(0, 1fr) minmax(105px, .48fr); gap: 18px; }
+      .brand-button { min-height: 100px; border-radius: 17px; box-shadow: 0 9px 0 var(--green-shadow); }
+      .follow-button { min-height: 62px; border-radius: 16px; box-shadow: 0 8px 0 var(--red-shadow); }
+      .page-actions { gap: 25px; }
+      .action-button { min-height: 95px; border-radius: 38px; box-shadow: 0 13px 0 var(--green-shadow); }
+      .exit-button { box-shadow: 0 13px 0 var(--red-shadow); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page" id="home">
+    <img class="cherry-bg" src="background.png" alt="" aria-hidden="true">
+
+    <header class="profile-row">
+      <h1 class="name">Kmoiprst (ケネス)</h1>
+      <a class="profile-link" href="admin.html" target="_blank" rel="noopener noreferrer" aria-label="Open admin panel">
+        <img class="profile" src="profile.png" alt="KMOIPRST profile image">
+      </a>
+    </header>
+
+    <section class="brand-row" aria-label="KEYFLOW links">
+      <a class="button brand-button" href="https://play.google.com/store/apps/details?id=com.angkin.keyflow">KEYFLOW</a>
+      <a class="button follow-button" href="https://www.tiktok.com/@kmoi0n" target="_blank" rel="noopener noreferrer">FOLLOW</a>
+    </section>
+
+    <section class="intro">
+      <h2>HI VIEWERS!</h2>
+      <p>I'm KMOIPRST, but you can call me Kenneth if you're having trouble pronouncing KMOI. HEHEHE!</p>
+
+      <p>This page is dedicated to sharing my projects, expressions, and tutorials related to KEYFLOW. My goal is to provide useful resources and help others explore and improve their editing skills.</p>
+
+      <p>If I'm not uploading content or seem inactive, I sincerely apologize. I'm currently balancing my academic responsibilities with my passion for editing and development. Thank you for your patience, understanding, and continued support!</p>
+
+      <p>Stay tuned for more KEYFLOW content!</p>
+    </section>
+
+    <nav class="page-actions" aria-label="Page actions">
+      <a class="button action-button enter-button" href="Inside.html">ENTER THIS PAGE!</a>
+      <a class="button action-button exit-button" href="https://google.com">EXIT THIS PAGE!</a>
+    </nav>
+
+    <footer class="footer">© <span id="year"></span> KMOIPRST · INAUDITO</footer>
+  </main>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    const clickables = document.querySelectorAll(".button, .profile-link");
+
+    clickables.forEach(el => {
+      el.addEventListener("click", e => {
+        // Ripple from the click point (keyboard clicks have no coordinates, so center it)
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX ? e.clientX - rect.left : rect.width / 2;
+        const y = e.clientY ? e.clientY - rect.top : rect.height / 2;
+
+        const ripple = document.createElement("span");
+        ripple.className = "ripple";
+        ripple.style.left = x + "px";
+        ripple.style.top = y + "px";
+        el.appendChild(ripple);
+        ripple.addEventListener("animationend", () => ripple.remove());
+
+        // Restart the press animation on every click
+        el.classList.remove("is-pressed");
+        void el.offsetWidth;
+        el.classList.add("is-pressed");
+
+        // For same-tab links, wait briefly so the animation is visible before navigating.
+        // New-tab links and anchors on this page are left alone.
+        const href = el.getAttribute("href");
+        if (!href || href.startsWith("#") || el.target === "_blank") return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+
+        e.preventDefault();
+        setTimeout(() => { window.location.href = href; }, 220);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KMOIPRST | Admin</title>
+  <style>
+    :root { --bg:#080808; --card:#141414; --text:#f7f7f7; --muted:#9a9a9a; --green:#12df08; --red:#ff0808; --cyan:#00e9e9; }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family:Arial, Helvetica, sans-serif; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 32px 18px 60px; }
+    h1 { font-family: Georgia, serif; margin: 0 0 6px; }
+    h2 { margin: 36px 0 12px; color: var(--green); }
+    .sub { color: var(--muted); margin: 0 0 24px; }
+    .card { background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+    input, textarea {
+      width: 100%; padding: 12px 14px; margin: 6px 0 12px; border-radius: 10px;
+      border: 1px solid #2a2a2a; background: #0d0d0d; color: var(--text); font: inherit;
+    }
+    textarea { min-height: 80px; resize: vertical; }
+    textarea.code { font-family: Consolas, Monaco, monospace; font-size: 13px; min-height: 120px; }
+    button {
+      border: 0; border-radius: 12px; padding: 12px 18px; font-weight: 900; cursor: pointer;
+      color: #fff; background: var(--green); font-size: 15px;
+    }
+    button.danger { background: var(--red); padding: 8px 12px; font-size: 13px; }
+    button.secondary { background: #333; }
+    button:disabled { opacity: .5; cursor: default; }
+    .item { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+    .item h3 { margin: 0 0 4px; font-size: 17px; }
+    .item p { margin: 0; color: var(--muted); font-size: 14px; word-break: break-word; }
+    .item a { color: var(--cyan); font-size: 13px; word-break: break-all; }
+    .item pre {
+      margin: 8px 0 0; padding: 10px; background: #0d0d0d; border-radius: 8px;
+      color: #cfcfcf; font-size: 13px; white-space: pre-wrap; word-break: break-word;
+    }
+    .empty { color: var(--muted); font-style: italic; }
+    .error { color: var(--red); min-height: 20px; }
+    .hidden { display: none !important; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <!-- LOGIN -->
+    <section id="loginView">
+      <h1>Admin Login</h1>
+      <p class="sub">KMOIPRST control panel</p>
+      <form class="card" id="loginForm">
+        <input type="email" id="email" placeholder="Email" autocomplete="username" required>
+        <input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
+        <button type="submit" id="loginBtn">Sign in</button>
+        <p class="error" id="loginError"></p>
+      </form>
+    </section>
+
+    <!-- PANEL -->
+    <section id="panelView" class="hidden">
+      <div class="topbar">
+        <h1>Admin Panel</h1>
+        <div>
+          <a href="index.html" style="color:var(--cyan);margin-right:14px;">View site</a>
+          <button class="secondary" id="logoutBtn">Sign out</button>
+        </div>
+      </div>
+      <p class="sub" id="whoami"></p>
+
+      <h2>Projects</h2>
+      <form class="card" id="projectForm">
+        <input type="text" id="projectTitle" placeholder="Project title" required>
+        <input type="url" id="projectLink" placeholder="Link (https://...)">
+        <textarea id="projectDesc" placeholder="Short description"></textarea>
+        <button type="submit">Add project</button>
+      </form>
+      <div id="projectList"></div>
+
+      <h2>Tutorials</h2>
+      <form class="card" id="tutorialForm">
+        <input type="text" id="tutorialTitle" placeholder="Tutorial title" required>
+        <input type="url" id="tutorialLink" placeholder="Link (https://...)">
+        <textarea id="tutorialDesc" placeholder="Short description"></textarea>
+        <button type="submit">Add tutorial</button>
+      </form>
+      <div id="tutorialList"></div>
+
+      <h2>Expressions</h2>
+      <form class="card" id="expressionForm">
+        <input type="text" id="expressionLabel" placeholder="Label (e.g. Wiggle position)" required>
+        <textarea class="code" id="expressionCode" placeholder="Expression code" required></textarea>
+        <button type="submit">Add expression</button>
+      </form>
+      <div id="expressionList"></div>
+    </section>
+  </div>
+
+  <!-- Firebase compat SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBZFlSzF8rFlsQPF7oBORVbVno2b9nhusE",
+      authDomain: "kmoi0n.firebaseapp.com",
+      projectId: "kmoi0n",
+      storageBucket: "kmoi0n.firebasestorage.app",
+      messagingSenderId: "311955904266",
+      appId: "1:311955904266:web:0370758e8924d405930cf3",
+      databaseURL: "https://kmoi0n-default-rtdb.firebaseio.com"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[c]));
+
+    // ---- Auth ----
+    $("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      $("loginError").textContent = "";
+      $("loginBtn").disabled = true;
+      try {
+        await auth.signInWithEmailAndPassword($("email").value.trim(), $("password").value);
+      } catch (err) {
+        $("loginError").textContent = "Sign-in failed. Check your email and password.";
+      } finally {
+        $("loginBtn").disabled = false;
+      }
+    });
+
+    $("logoutBtn").addEventListener("click", () => auth.signOut());
+
+    auth.onAuthStateChanged(user => {
+      const signedIn = !!user;
+      $("loginView").classList.toggle("hidden", signedIn);
+      $("panelView").classList.toggle("hidden", !signedIn);
+      if (signedIn) {
+        $("whoami").textContent = "Signed in as " + user.email;
+        startListeners();
+      } else {
+        stopListeners();
+      }
+    });
+
+    // ---- Data ----
+    // fields maps each stored property to the form input id that fills it
+    const sections = {
+      projects: {
+        list: "projectList",
+        form: "projectForm",
+        fields: { title: "projectTitle", link: "projectLink", desc: "projectDesc" }
+      },
+      tutorials: {
+        list: "tutorialList",
+        form: "tutorialForm",
+        fields: { title: "tutorialTitle", link: "tutorialLink", desc: "tutorialDesc" }
+      },
+      expressions: {
+        list: "expressionList",
+        form: "expressionForm",
+        fields: { title: "expressionLabel", code: "expressionCode" }
+      }
+    };
+
+    const refs = {};
+    const handlers = {};
+
+    function render(key, data) {
+      const box = $(sections[key].list);
+      const items = data ? Object.entries(data) : [];
+      if (!items.length) {
+        box.innerHTML = '<p class="empty">Nothing here yet.</p>';
+        return;
+      }
+      items.sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0));
+      box.innerHTML = items.map(([id, item]) => `
+        <div class="card item">
+          <div style="min-width:0;flex:1">
+            <h3>${esc(item.title)}</h3>
+            ${item.desc ? `<p>${esc(item.desc)}</p>` : ""}
+            ${item.code ? `<pre>${esc(item.code)}</pre>` : ""}
+            ${item.link ? `<a href="${esc(item.link)}" target="_blank" rel="noopener noreferrer">${esc(item.link)}</a>` : ""}
+          </div>
+          <button class="danger" data-key="${key}" data-id="${esc(id)}">Delete</button>
+        </div>`).join("");
+    }
+
+    function startListeners() {
+      Object.keys(sections).forEach(key => {
+        if (refs[key]) return;
+        refs[key] = db.ref("site/" + key);
+        handlers[key] = snap => render(key, snap.val());
+        refs[key].on("value", handlers[key]);
+      });
+    }
+
+    function stopListeners() {
+      Object.keys(refs).forEach(key => {
+        refs[key].off("value", handlers[key]);
+        delete refs[key];
+        delete handlers[key];
+        $(sections[key].list).innerHTML = "";
+      });
+    }
+
+    // Add
+    Object.entries(sections).forEach(([key, s]) => {
+      $(s.form).addEventListener("submit", async e => {
+        e.preventDefault();
+        const btn = e.submitter || e.target.querySelector("button");
+        btn.disabled = true;
+        const data = { createdAt: firebase.database.ServerValue.TIMESTAMP };
+        Object.entries(s.fields).forEach(([prop, inputId]) => {
+          data[prop] = $(inputId).value.trim();
+        });
+        try {
+          await db.ref("site/" + key).push(data);
+          e.target.reset();
+        } catch (err) {
+          alert("Could not save: " + err.message);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+
+    // Delete (event delegation)
+    document.addEventListener("click", async e => {
+      const btn = e.target.closest("button[data-id]");
+      if (!btn) return;
+      if (!confirm("Delete this item?")) return;
+      try {
+        await db.ref(`site/${btn.dataset.key}/${btn.dataset.id}`).remove();
+      } catch (err) {
+        alert("Could not delete: " + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
