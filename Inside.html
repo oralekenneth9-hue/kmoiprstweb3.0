@@ -192,7 +192,8 @@
     gap: 8px;
     padding: 12px 10px;
   }
-  .project-card .icon-btn { color: var(--icon-soft); }
+  .project-card .icon-btn { color: var(--white); width: 36px; height: 36px; }
+  .project-card .icon-btn.is-off { opacity: .35; cursor: default; pointer-events: none; }
   .project-card .name {
     text-align: center;
     font-size: 14px;
@@ -202,8 +203,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .project-card .dl-icon { width: 20px; height: 20px; }
-  .project-card .play-icon { width: 16px; height: 16px; }
+  .project-card .dl-icon { width: 24px; height: 24px; }
+  .project-card .play-icon { width: 22px; height: 22px; }
 
   .empty {
     text-align: center;
@@ -648,6 +649,9 @@
     pointer-events: none;
   }
 
+  /* ---- Ad slot: sits in the page flow, never covers buttons ---- */
+  .ad-slot { margin: 18px 2px 0; min-height: 60px; }
+
   /* ---- UI polish ---- */
   .content { display: flex; flex-direction: column; }
   .content > * { flex-shrink: 0; }
@@ -656,6 +660,8 @@
   body.searching .content,
   body.searching .title-pill { opacity: 0; pointer-events: none; }
 </style>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5977885485206068"
+     crossorigin="anonymous"></script>
 </head>
 <body>
 <video class="bg-video" id="bgVideo" autoplay muted loop playsinline preload="auto" aria-hidden="true">
@@ -681,6 +687,13 @@
       <div id="projectList"></div>
       <div class="empty" id="projectEmpty" hidden>No projects yet.</div>
     </section>
+    <div class="ad-slot" id="adSlot">
+      <ins class="adsbygoogle" style="display:block"
+           data-ad-client="ca-pub-5977885485206068"
+           data-ad-slot="REPLACE_AD_SLOT"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </div>
     <footer class="site-footer">KMOIPRST</footer>
   </main>
 
@@ -812,11 +825,16 @@ if (marker.numKeys > 0) {
   }
 
   function renderProjects() {
+    // Download (tray icon) -> Google Drive link; Play (triangle) -> TikTok link
+    const linkBtn = (url, icon, label) => url
+      ? `<a class="icon-btn" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${label}">${icon}</a>`
+      : `<span class="icon-btn is-off" aria-label="${label} (no link yet)">${icon}</span>`;
+
     $("#projectList").innerHTML = DATA.projects.map(p => `
       <div class="card project-card">
-        <a class="icon-btn" href="${esc(p.driveUrl)}" target="_blank" rel="noopener" aria-label="Download ${esc(p.name)} from Google Drive">${ICON_DL}</a>
+        ${linkBtn(p.driveUrl, ICON_DL, "Download " + esc(p.name) + " from Google Drive")}
         <div class="name">${esc(p.name)}</div>
-        <a class="icon-btn" href="${esc(p.tiktokUrl)}" target="_blank" rel="noopener" aria-label="Watch ${esc(p.name)} on TikTok">${ICON_PLAY}</a>
+        ${linkBtn(p.tiktokUrl, ICON_PLAY, "Watch " + esc(p.name) + " on TikTok")}
       </div>`).join("");
     $("#projectEmpty").hidden = DATA.projects.length > 0;
   }
@@ -960,6 +978,15 @@ if (marker.numKeys > 0) {
     }
   }
   window.addEventListener("load", syncFromFirebase);
+
+  /* AdSense: show the ad unit once a real ad slot ID is set; otherwise remove it */
+  (function setupAds() {
+    const slot = document.getElementById("adSlot");
+    if (!slot) return;
+    const ins = slot.querySelector("ins");
+    if (!ins || !ins.dataset.adSlot || ins.dataset.adSlot.includes("REPLACE")) { slot.remove(); return; }
+    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+  })();
 
   /* Background video: autoplay muted; removed if no URL is set yet */
   (function setupBgVideo() {
