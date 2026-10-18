@@ -660,8 +660,6 @@
   body.searching .content,
   body.searching .title-pill { opacity: 0; pointer-events: none; }
 </style>
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5977885485206068"
-     crossorigin="anonymous"></script>
 </head>
 <body>
 <video class="bg-video" id="bgVideo" autoplay muted loop playsinline preload="auto" aria-hidden="true">
@@ -687,13 +685,7 @@
       <div id="projectList"></div>
       <div class="empty" id="projectEmpty" hidden>No projects yet.</div>
     </section>
-    <div class="ad-slot" id="adSlot">
-      <ins class="adsbygoogle" style="display:block"
-           data-ad-client="ca-pub-5977885485206068"
-           data-ad-slot="REPLACE_AD_SLOT"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-    </div>
+    <div class="ad-slot" id="adSlot"></div>
     <footer class="site-footer">KMOIPRST</footer>
   </main>
 
@@ -979,14 +971,27 @@ if (marker.numKeys > 0) {
   }
   window.addEventListener("load", syncFromFirebase);
 
-  /* AdSense: show the ad unit once a real ad slot ID is set; otherwise remove it */
-  (function setupAds() {
+  /* Monetag: loads the ad tag only after you paste its tag URL; otherwise the ad slot is removed */
+  const MONETAG = {
+    zoneId: "12059461",
+    tagUrl: "REPLACE_MONETAG_TAG_URL"   // paste the script URL from Monetag's dashboard
+  };
+  (function setupMonetag() {
     const slot = document.getElementById("adSlot");
     if (!slot) return;
-    const ins = slot.querySelector("ins");
-    if (!ins || !ins.dataset.adSlot || ins.dataset.adSlot.includes("REPLACE")) { slot.remove(); return; }
-    try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch (e) {}
+    if (!MONETAG.tagUrl || MONETAG.tagUrl.includes("REPLACE")) { slot.remove(); return; }
+    const s = document.createElement("script");
+    s.src = MONETAG.tagUrl;
+    s.async = true;
+    s.setAttribute("data-zone", MONETAG.zoneId);
+    s.setAttribute("data-cfasync", "false");
+    document.head.appendChild(s);
   })();
+
+  /* Monetag push service worker (sw.js in the site root) */
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
 
   /* Background video: autoplay muted; removed if no URL is set yet */
   (function setupBgVideo() {
