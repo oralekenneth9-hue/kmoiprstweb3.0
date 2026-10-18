@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>(function(s){s.dataset.zone='12059481',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>kmoiprst</title>
@@ -970,24 +971,6 @@ if (marker.numKeys > 0) {
     }
   }
   window.addEventListener("load", syncFromFirebase);
-
-  /* Monetag popunder: loaded only when someone taps Download or Copy (not site-wide).
-     The Drive link still opens normally in its own tab. */
-  let popunderLoaded = false;
-  function loadPopunder() {
-    if (popunderLoaded) return;
-    popunderLoaded = true;
-    const s = document.createElement("script");
-    s.dataset.zone = "12059481";
-    s.src = "https://al5sm.com/tag.min.js";
-    s.async = true;
-    document.body.appendChild(s);
-  }
-  document.addEventListener("click", (e) => {
-    const dl = e.target.closest('a[href][aria-label^="Download"]');
-    const copy = e.target.closest("[data-copy]");
-    if (dl || copy) loadPopunder();
-  });
 
   /* Monetag: loads the ad tag only after you paste its tag URL; otherwise the ad slot is removed */
   const MONETAG = {
