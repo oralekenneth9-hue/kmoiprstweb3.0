@@ -971,10 +971,28 @@ if (marker.numKeys > 0) {
   }
   window.addEventListener("load", syncFromFirebase);
 
+  /* Monetag popunder: loaded only when someone taps Download or Copy (not site-wide).
+     The Drive link still opens normally in its own tab. */
+  let popunderLoaded = false;
+  function loadPopunder() {
+    if (popunderLoaded) return;
+    popunderLoaded = true;
+    const s = document.createElement("script");
+    s.dataset.zone = "12059481";
+    s.src = "https://al5sm.com/tag.min.js";
+    s.async = true;
+    document.body.appendChild(s);
+  }
+  document.addEventListener("click", (e) => {
+    const dl = e.target.closest('a[href][aria-label^="Download"]');
+    const copy = e.target.closest("[data-copy]");
+    if (dl || copy) loadPopunder();
+  });
+
   /* Monetag: loads the ad tag only after you paste its tag URL; otherwise the ad slot is removed */
   const MONETAG = {
-    zoneId: "12059461",
-    tagUrl: "REPLACE_MONETAG_TAG_URL"   // paste the script URL from Monetag's dashboard
+    zoneId: "297534",
+    tagUrl: "https://quge5.com/88/tag.min.js"
   };
   (function setupMonetag() {
     const slot = document.getElementById("adSlot");
