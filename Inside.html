@@ -192,7 +192,8 @@
     gap: 8px;
     padding: 12px 10px;
   }
-  .project-card .icon-btn { color: var(--icon-soft); }
+  .project-card .icon-btn { color: var(--white); width: 36px; height: 36px; }
+  .project-card .icon-btn.is-off { opacity: .35; cursor: default; pointer-events: none; }
   .project-card .name {
     text-align: center;
     font-size: 14px;
@@ -202,8 +203,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .project-card .dl-icon { width: 20px; height: 20px; }
-  .project-card .play-icon { width: 16px; height: 16px; }
+  .project-card .dl-icon { width: 24px; height: 24px; }
+  .project-card .play-icon { width: 22px; height: 22px; }
 
   .empty {
     text-align: center;
@@ -458,6 +459,107 @@
   .search-bar .close svg { width: 18px; height: 18px; display: block; }
 
   /* ---------- Toast ---------- */
+  /* ---- Search morph: navigation shrinks, search button expands into the typing field ---- */
+  .bottom-bar { z-index: 12; align-items: center; }
+
+  .segment {
+    flex: 1 1 auto;
+    transition: flex-grow .5s cubic-bezier(.2,.8,.2,1), flex-basis .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .segment button { transition: opacity .25s ease, color .3s ease; }
+  .segment .indicator {
+    transition: transform .5s cubic-bezier(.34,1.56,.64,1), width .5s cubic-bezier(.34,1.56,.64,1), opacity .25s ease;
+  }
+  .seg-dots {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+  }
+  .seg-dots i { display: block; width: 7px; height: 7px; border-radius: 50%; background: #fff; }
+
+  .bottom-bar.searching .segment {
+    flex: 0 0 48px;
+    min-width: 48px;
+    overflow: hidden;
+  }
+  .bottom-bar.searching .segment button,
+  .bottom-bar.searching .segment .indicator { opacity: 0; pointer-events: none; }
+  .bottom-bar.searching .seg-dots { opacity: 1; }
+
+  .search-fab {
+    flex: 0 0 48px;
+    width: auto;
+    height: 48px;
+    padding: 0;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    transition: flex-grow .5s cubic-bezier(.2,.8,.2,1), flex-basis .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .bottom-bar.searching .search-fab { flex: 1 1 0%; }
+
+  .fab-icon {
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .fab-icon svg { width: 22px; height: 22px; }
+
+  .search-fab input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0 6px;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .25s ease;
+  }
+  .search-fab input::placeholder { color: #dbe9ff; opacity: .9; }
+  .bottom-bar.searching .search-fab input { opacity: 1; pointer-events: auto; transition-delay: .2s; }
+
+  .fab-close {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    margin-right: 6px;
+    border: none;
+    border-radius: 50%;
+    background: #6eb5ff;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s ease;
+  }
+  .fab-close svg { width: 16px; height: 16px; }
+  .bottom-bar.searching .fab-close { opacity: 1; pointer-events: auto; transition-delay: .2s; }
+
   .toast {
     position: fixed;
     top: calc(14px + var(--safe-top));
@@ -493,9 +595,74 @@
     *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
     .enter { animation: none !important; }
   }
+  /* Footer label at the end of every page */
+  .site-footer {
+    margin: 28px 0 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: rgba(255, 255, 255, .6);
+    text-shadow: 0 1px 2px rgba(0,0,0,.3);
+    user-select: none;
+  }
+  /* ---- Search dots icon (in the shrunken navigation) ---- */
+  .segment::after { content: none; }
+  .dots {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+  }
+  .dots i {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ffffff;
+  }
+  .bottom-bar.searching .dots { opacity: 1; }
+
+  /* ---- Background video (plays automatically, muted, looping) ---- */
+  .bg-video {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+    pointer-events: none;
+  }
+  .bg-dim {
+    position: fixed;
+    inset: 0;
+    background: rgba(4, 12, 40, .25);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* ---- UI polish ---- */
+  .content { display: flex; flex-direction: column; }
+  .content > * { flex-shrink: 0; }
+  .site-footer { margin-top: auto; padding-top: 28px; }
+  .content, .title-pill { transition: opacity .3s ease; }
+  body.searching .content,
+  body.searching .title-pill { opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
+<video class="bg-video" id="bgVideo" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+  <source src="background.mp4" type="video/mp4">
+</video>
+<div class="bg-dim" aria-hidden="true"></div>
 <div class="app">
 
   <div class="title-pill" id="pageTitle">Expression</div>
@@ -515,35 +682,36 @@
       <div id="projectList"></div>
       <div class="empty" id="projectEmpty" hidden>No projects yet.</div>
     </section>
+    <footer class="site-footer">KMOIPRST</footer>
   </main>
 
   <nav class="bottom-bar">
     <div class="segment" id="segment" role="tablist">
       <span class="indicator" id="indicator" aria-hidden="true"></span>
+      <span class="seg-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
       <button type="button" role="tab" data-tab="expression" class="on" aria-selected="true">Expression</button>
       <button type="button" role="tab" data-tab="tutorial" aria-selected="false">Tutorial</button>
       <button type="button" role="tab" data-tab="project" aria-selected="false">Projects</button>
     </div>
-    <button class="search-fab" id="searchBtn" type="button" aria-label="Search">
+    <div class="search-fab" id="searchFab">
+    <button class="fab-icon" id="searchBtn" type="button" aria-label="Search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
         <circle cx="10" cy="10" r="6.5"/><line x1="15" y1="15" x2="21" y2="21"/>
       </svg>
     </button>
+    <input id="searchInput" type="text" placeholder="Search..." autocomplete="off" aria-label="Search text">
+    <button class="fab-close" id="searchClose" type="button" aria-label="Close search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+        <line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/>
+      </svg>
+    </button>
+    </div>
   </nav>
 
   <div class="search-view" id="searchView" role="dialog" aria-modal="true" aria-label="Search">
     <div class="search-title">Search</div>
     <div class="search-results" id="searchResults"></div>
-    <div class="search-bar">
-      <div class="box">
-        <input id="searchInput" type="text" placeholder="Text..." autocomplete="off" aria-label="Search text">
-      </div>
-      <button class="close" id="searchClose" type="button" aria-label="Close search">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
-          <circle cx="10" cy="10" r="6.5"/><line x1="15" y1="15" x2="21" y2="21"/>
-        </svg>
-      </button>
-    </div>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite">Copied!</div>
@@ -645,11 +813,16 @@ if (marker.numKeys > 0) {
   }
 
   function renderProjects() {
+    // Download (tray icon) -> Google Drive link; Play (triangle) -> TikTok link
+    const linkBtn = (url, icon, label) => url
+      ? `<a class="icon-btn" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${label}">${icon}</a>`
+      : `<span class="icon-btn is-off" aria-label="${label} (no link yet)">${icon}</span>`;
+
     $("#projectList").innerHTML = DATA.projects.map(p => `
       <div class="card project-card">
-        <a class="icon-btn" href="${esc(p.driveUrl)}" target="_blank" rel="noopener" aria-label="Download ${esc(p.name)} from Google Drive">${ICON_DL}</a>
+        ${linkBtn(p.driveUrl, ICON_DL, "Download " + esc(p.name) + " from Google Drive")}
         <div class="name">${esc(p.name)}</div>
-        <a class="icon-btn" href="${esc(p.tiktokUrl)}" target="_blank" rel="noopener" aria-label="Watch ${esc(p.name)} on TikTok">${ICON_PLAY}</a>
+        ${linkBtn(p.tiktokUrl, ICON_PLAY, "Watch " + esc(p.name) + " on TikTok")}
       </div>`).join("");
     $("#projectEmpty").hidden = DATA.projects.length > 0;
   }
@@ -794,7 +967,19 @@ if (marker.numKeys > 0) {
   }
   window.addEventListener("load", syncFromFirebase);
 
+  /* Background video: autoplay muted; removed if no URL is set yet */
+  (function setupBgVideo() {
+    const v = document.getElementById("bgVideo");
+    if (!v) return;
+    const src = v.querySelector("source").getAttribute("src") || "";
+    if (!src || src.includes("REPLACE")) { v.remove(); document.querySelector(".bg-dim")?.remove(); return; }
+    v.muted = true;
+    const p = v.play();
+    if (p && p.catch) p.catch(() => {});
+  })();
+
   segment.addEventListener("click", (e) => {
+    if (bottomBar.classList.contains("searching")) { closeSearch(); return; }
     // Keyboard activation targets the button directly; pointer taps are matched by position
     let btn = e.target.closest("button[data-tab]");
     if (!btn) {
@@ -819,6 +1004,7 @@ if (marker.numKeys > 0) {
   /* ====== SEARCH ====== */
   const searchView = $("#searchView");
   const searchInput = $("#searchInput");
+  const bottomBar = document.querySelector(".bottom-bar");
   let currentResults = [];
 
   function allItems() {
@@ -873,13 +1059,20 @@ if (marker.numKeys > 0) {
   }
 
   function openSearch() {
+    if (searchView.classList.contains("open")) { searchInput.focus(); return; }
     searchView.classList.add("open");
+    bottomBar.classList.add("searching");
+    document.body.classList.add("searching");
     renderSearch();
     animateResults();
-    setTimeout(() => searchInput.focus(), 50);
+    setTimeout(() => searchInput.focus(), 450);
   }
   function closeSearch() {
+    if (!searchView.classList.contains("open")) return;
     searchView.classList.remove("open");
+    bottomBar.classList.remove("searching");
+    document.body.classList.remove("searching");
+    setTimeout(refreshIndicator, 520);
     searchInput.value = "";
     searchInput.blur();
   }
