@@ -192,8 +192,7 @@
     gap: 8px;
     padding: 12px 10px;
   }
-  .project-card .icon-btn { color: var(--white); width: 36px; height: 36px; }
-  .project-card .icon-btn.is-off { opacity: .35; cursor: default; pointer-events: none; }
+  .project-card .icon-btn { color: var(--icon-soft); }
   .project-card .name {
     text-align: center;
     font-size: 14px;
@@ -203,8 +202,8 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .project-card .dl-icon { width: 24px; height: 24px; }
-  .project-card .play-icon { width: 22px; height: 22px; }
+  .project-card .dl-icon { width: 20px; height: 20px; }
+  .project-card .play-icon { width: 16px; height: 16px; }
 
   .empty {
     text-align: center;
@@ -813,16 +812,11 @@ if (marker.numKeys > 0) {
   }
 
   function renderProjects() {
-    // Download (tray icon) -> Google Drive link; Play (triangle) -> TikTok link
-    const linkBtn = (url, icon, label) => url
-      ? `<a class="icon-btn" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${label}">${icon}</a>`
-      : `<span class="icon-btn is-off" aria-label="${label} (no link yet)">${icon}</span>`;
-
     $("#projectList").innerHTML = DATA.projects.map(p => `
       <div class="card project-card">
-        ${linkBtn(p.driveUrl, ICON_DL, "Download " + esc(p.name) + " from Google Drive")}
+        <a class="icon-btn" href="${esc(p.driveUrl)}" target="_blank" rel="noopener" aria-label="Download ${esc(p.name)} from Google Drive">${ICON_DL}</a>
         <div class="name">${esc(p.name)}</div>
-        ${linkBtn(p.tiktokUrl, ICON_PLAY, "Watch " + esc(p.name) + " on TikTok")}
+        <a class="icon-btn" href="${esc(p.tiktokUrl)}" target="_blank" rel="noopener" aria-label="Watch ${esc(p.name)} on TikTok">${ICON_PLAY}</a>
       </div>`).join("");
     $("#projectEmpty").hidden = DATA.projects.length > 0;
   }
