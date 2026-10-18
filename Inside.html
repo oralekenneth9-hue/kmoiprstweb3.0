@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>(function(s){s.dataset.zone='12059481',s.src='https://al5sm.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>kmoiprst</title>
@@ -650,9 +649,6 @@
     pointer-events: none;
   }
 
-  /* ---- Ad slot: sits in the page flow, never covers buttons ---- */
-  .ad-slot { margin: 18px 2px 0; min-height: 60px; }
-
   /* ---- UI polish ---- */
   .content { display: flex; flex-direction: column; }
   .content > * { flex-shrink: 0; }
@@ -686,7 +682,6 @@
       <div id="projectList"></div>
       <div class="empty" id="projectEmpty" hidden>No projects yet.</div>
     </section>
-    <div class="ad-slot" id="adSlot"></div>
     <footer class="site-footer">KMOIPRST</footer>
   </main>
 
@@ -972,27 +967,8 @@ if (marker.numKeys > 0) {
   }
   window.addEventListener("load", syncFromFirebase);
 
-  /* Monetag: loads the ad tag only after you paste its tag URL; otherwise the ad slot is removed */
-  const MONETAG = {
-    zoneId: "297534",
-    tagUrl: "https://quge5.com/88/tag.min.js"
-  };
-  (function setupMonetag() {
-    const slot = document.getElementById("adSlot");
-    if (!slot) return;
-    if (!MONETAG.tagUrl || MONETAG.tagUrl.includes("REPLACE")) { slot.remove(); return; }
-    const s = document.createElement("script");
-    s.src = MONETAG.tagUrl;
-    s.async = true;
-    s.setAttribute("data-zone", MONETAG.zoneId);
-    s.setAttribute("data-cfasync", "false");
-    document.head.appendChild(s);
-  })();
-
-  /* Monetag push service worker (sw.js in the site root) */
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  }
+  /* Monetag direct link (paste the link from Monetag's dashboard). Used on Copy. */
+  const MONETAG_DIRECT_LINK = "REPLACE_MONETAG_DIRECT_LINK";
 
   /* Background video: autoplay muted; removed if no URL is set yet */
   (function setupBgVideo() {
@@ -1025,7 +1001,13 @@ if (marker.numKeys > 0) {
     const btn = e.target.closest("[data-copy]");
     if (!btn) return;
     const item = DATA.expressions.find(x => x.id === btn.dataset.copy);
-    if (item) copyText(item.code);
+    if (!item) return;
+    // Monetag direct link: opens in a new tab on this tap, then the code is copied.
+    // Opened synchronously inside the click so browsers don't block it.
+    if (MONETAG_DIRECT_LINK && !MONETAG_DIRECT_LINK.includes("REPLACE")) {
+      window.open(MONETAG_DIRECT_LINK, "_blank", "noopener");
+    }
+    copyText(item.code);
   });
 
   /* ====== SEARCH ====== */
