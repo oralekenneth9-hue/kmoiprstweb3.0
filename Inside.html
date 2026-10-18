@@ -967,8 +967,23 @@ if (marker.numKeys > 0) {
   }
   window.addEventListener("load", syncFromFirebase);
 
-  /* Monetag direct link (paste the link from Monetag's dashboard). Used on Copy. */
-  const MONETAG_DIRECT_LINK = "REPLACE_MONETAG_DIRECT_LINK";
+  /* Monetag direct links: one for Copy, one for Download */
+  const MONETAG_DIRECT_LINK_COPY = "https://uplcm.com/4/12059648";
+  const MONETAG_DIRECT_LINK_DOWNLOAD = "https://uplcm.com/4/12059650";
+  // Download button: the Monetag link opens first in a new tab, then that same tab
+  // moves on to the Google Drive link after a short delay.
+  const DRIVE_REDIRECT_DELAY_MS = 3000;   // change this to show the Monetag page longer or shorter
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href][aria-label^="Download"]');
+    if (!a) return;
+    e.preventDefault();
+    const driveUrl = a.href;
+    const adTab = window.open(MONETAG_DIRECT_LINK_DOWNLOAD, "_blank");   // no "noopener": we need the handle
+    if (!adTab) { window.open(driveUrl, "_blank"); return; }              // popup blocked: go straight to Drive
+    setTimeout(() => {
+      try { adTab.location.href = driveUrl; } catch (err) { adTab.close(); window.open(driveUrl, "_blank"); }
+    }, DRIVE_REDIRECT_DELAY_MS);
+  });
 
   /* Background video: autoplay muted; removed if no URL is set yet */
   (function setupBgVideo() {
@@ -1004,9 +1019,7 @@ if (marker.numKeys > 0) {
     if (!item) return;
     // Monetag direct link: opens in a new tab on this tap, then the code is copied.
     // Opened synchronously inside the click so browsers don't block it.
-    if (MONETAG_DIRECT_LINK && !MONETAG_DIRECT_LINK.includes("REPLACE")) {
-      window.open(MONETAG_DIRECT_LINK, "_blank", "noopener");
-    }
+    window.open(MONETAG_DIRECT_LINK_COPY, "_blank", "noopener");
     copyText(item.code);
   });
 
