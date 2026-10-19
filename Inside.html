@@ -992,11 +992,10 @@ if (marker.numKeys > 0) {
     if (!a) return;
     e.preventDefault();
     const driveUrl = a.href;
-    const adTab = window.open(MONETAG_DIRECT_LINK_DOWNLOAD, "_blank");   // no "noopener": we need the handle
-    if (!adTab) { window.open(driveUrl, "_blank"); return; }              // popup blocked: go straight to Drive
-    setTimeout(() => {
-      try { adTab.location.href = driveUrl; } catch (err) { adTab.close(); window.open(driveUrl, "_blank"); }
-    }, DRIVE_REDIRECT_DELAY_MS);
+    // Google Drive opens straight from the tap, so it never depends on the ad page.
+    window.open(driveUrl, "_blank", "noopener");
+    // Ad page opens separately. Its redirects stay in that tab and cannot take over Drive.
+    window.open(MONETAG_DIRECT_LINK_DOWNLOAD, "_blank", "noopener");
   });
 
   /* Background video: autoplay muted; removed if no URL is set yet */
